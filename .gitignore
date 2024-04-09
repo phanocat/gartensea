@@ -1,0 +1,4 @@
+blogProject/settings.py
+blogProject/urls.py
+venv
+db.sqlite3
