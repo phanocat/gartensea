@@ -14,6 +14,12 @@ from .serializer import PostSerializer, ImageSerializer, PostSupplementsSerializ
     UserListSerializer
 
 class PostView(viewsets.ViewSet):
+    def retrieve(self, request, post_id):
+        queryset = Post.objects.all()
+        item = get_object_or_404(queryset, pk=post_id)
+        serializer = PostSerializer(item)
+        return Response(serializer.data)
+        
     def count(self, request):
         posts = Post.objects.all().filter(is_new_post=False)
         postsCount = posts.count()

@@ -6,6 +6,7 @@ urlpatterns = [
     #post
     path('posts-count', PostView.as_view({'get': 'count'})),
     path('posts/loadedItems=<int:loadedCount>/limit=<int:limit>', PostView.as_view({'get': 'list'})),
+    path('post/<int:post_id>', PostView.as_view({'get': 'retrieve'})),
     path('get-post-supplements/<int:post_id>', PostView.as_view({'get': 'post_supplements_list'})),
     path('get-new-post', PostView.as_view({'get': 'get_new_post'})),
     path('set-new-post-text/<int:post_id>', PostView.as_view({'post': 'set_text'})),
