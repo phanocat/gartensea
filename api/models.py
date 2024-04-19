@@ -60,4 +60,31 @@ class Customization(models.Model):
     def save(self, *args, **kwargs):
         super().save()
 
+class Tag(models.Model):
+    name = models.CharField(max_length=90)
 
+    def __str__(self):
+        return self.name
+
+class Article(models.Model):
+    title = models.CharField(max_length=120)
+    description = models.CharField(max_length=300, blank=True)
+    text = models.CharField(max_length=15000)
+    created_at = models.DateTimeField(auto_now_add=True)
+    cover = models.ImageField(upload_to="article-images", blank=True)
+    tags = models.ManyToManyField(Tag, blank='True')
+
+    def save(self, *args, **kwargs):
+        super().save()
+    
+    def __str__(self):
+        return self.title
+
+class ArticleComment(models.Model):
+    text = models.CharField(max_length=300, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='article_comments')
+
+    def __str__(self):
+        return self.text

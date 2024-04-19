@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import PostView, ImageView, AttachmentView, CommentView, UserView, CustomizationView
+from .views import PostView, ImageView, AttachmentView, CommentView, UserView, CustomizationView, TagView, ArticleView, ArticleCommentView
 
 urlpatterns = [
     #post
@@ -50,4 +50,18 @@ urlpatterns = [
     path('edit-city', CustomizationView.as_view({'post': 'edit_city'})),
     path('edit-email', CustomizationView.as_view({'post': 'edit_email'})),
     path('edit-status', CustomizationView.as_view({'post': 'edit_status'})),
+    #теги
+    path('add-tag', TagView.as_view({'post': 'create'})),
+    path('edit-tag', TagView.as_view({'post': 'edit'})),
+    path('delete-tag', TagView.as_view({'post': 'delete'})),
+    path('get-tags', TagView.as_view({'get': 'list'})),
+    #статьи
+    path('add-article', ArticleView.as_view({'post': 'create'})),
+    path('get-article/<int:id>', ArticleView.as_view({'get': 'retrieve'})),
+    path('get-articles', ArticleView.as_view({'post': 'list'})),
+    path('articles-count', ArticleView.as_view({'post': 'count'})),
+    #комментарии статей
+    path('article-comments/<int:article_id>/<int:loadedItemsCount>', ArticleCommentView.as_view({'get': 'list'})),
+    path('article-comments-count/<int:article_id>', ArticleCommentView.as_view({'get': 'count'})),
+    path('add-article-comment', ArticleCommentView.as_view({'post': 'create'})),
 ]

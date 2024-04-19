@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Post, Image, Attachment, Comment, Customization
+from .models import Post, Image, Attachment, Comment, Customization, Tag, Article, ArticleComment
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
@@ -72,7 +72,7 @@ class CommentSerializer(serializers.ModelSerializer):
 class CommentCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = ['id', 'text', 'author', 'created_at', 'post', 'author']
+        fields = ['id', 'text', 'author', 'created_at', 'post']
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -107,3 +107,39 @@ class ContentCustomizationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customization
         fields = ['id', 'type', 'content']
+        
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ['id', 'name']
+        
+class CreateArticleSerializer(serializers.ModelSerializer):
+    tags = TagSerializer(many=True, read_only=True)
+    class Meta:
+        model = Article
+        fields = ['id', 'title', 'created_at', 'text', 'description', 'tags', 'cover']
+        
+class ArticleCommentSerializer(serializers.ModelSerializer):
+    author = FullUserSerializer()
+
+    class Meta:
+        model = ArticleComment
+        fields = ['id', 'text', 'author', 'created_at']
+
+class FullArticleSerializer(serializers.ModelSerializer):
+    tags = TagSerializer(many=True, read_only=True)
+    comments_count = serializers.IntegerField(
+        source='article_comments.count',
+        read_only=True
+    )
+    
+    class Meta:
+        model = Article
+        fields = ['id', 'title', 'created_at', 'text', 'description', 'tags', 'cover', 'comments_count']
+        
+class ArticleCommentCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ArticleComment
+        fields = ['id', 'text', 'author', 'created_at', 'article']
+        

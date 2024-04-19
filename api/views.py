@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 import datetime
 from django.contrib.auth import authenticate, login, logout
-from .models import Post, Image, Attachment, Comment, Customization
+from .models import Post, Image, Attachment, Comment, Customization, Tag, Article, ArticleComment
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
@@ -11,7 +11,7 @@ from .serializer import PostSerializer, ImageSerializer, PostSupplementsSerializ
     PostTextSerializer, AttachmentSerializer, CommentSerializer, CommentCreateSerializer, \
     FullUserSerializer, UserRegistrationSerializer, UserProfileRegistrationSerializer,\
     FullCustomizationSerializer, ContentCustomizationSerializer, \
-    UserListSerializer
+    UserListSerializer, TagSerializer, CreateArticleSerializer, FullArticleSerializer, ArticleCommentCreateSerializer, ArticleCommentSerializer
 
 class PostView(viewsets.ViewSet):
     def retrieve(self, request, post_id):
@@ -322,3 +322,98 @@ class CustomizationView(viewsets.ViewSet):
         item.save()
         serializer = FullCustomizationSerializer(item)
         return Response(serializer.data['content'])
+        
+class TagView(viewsets.ViewSet):
+    def create(self, request):
+        data = request.data
+        serializer = TagSerializer(data=data)
+        if not serializer.is_valid():
+            return Response(status=400, data=serializer.errors)
+        serializer.save()
+        return Response(serializer.data)
+        
+    def edit(self, request):
+        data = request.data
+        id = request.data.get('id')
+        queryset = Tag.objects.all()
+        item = get_object_or_404(queryset, pk=id)
+        serializer = TagSerializer(item, data=data)
+        if not serializer.is_valid():
+            return Response(status=400, data=serializer.errors)
+        serializer.save()
+        return Response(serializer.data)
+        
+    def delete(self, request):
+        id = request.data.get('id')
+        item = get_object_or_404(Tag.objects, id=id)
+        item.delete()
+        return Response(True)
+        
+    def list(self, request):
+        items = Tag.objects.all()
+        serializer = TagSerializer(items, many=True)
+        return Response(serializer.data)
+        
+class ArticleView(viewsets.ViewSet):
+    def create(self, request):
+        data = request.data
+        serializer = CreateArticleSerializer(data=data)
+        tags = request.POST.getlist('tags[]')
+        if not serializer.is_valid():
+            return Response(status=400, data=serializer.errors)
+        new_item = serializer.save(tags=tags)
+        return Response({"data": serializer.data, 'item_id': new_item.id})
+       
+    def retrieve(self, request, id):
+        queryset = Article.objects.all()
+        item = get_object_or_404(queryset, pk=id)
+        serializer = FullArticleSerializer(item)
+        return Response(serializer.data)
+        
+    def count(self, request):
+        data = request.data
+        search_str = data.get('searchStr')
+        items = Article.objects.all()
+        items = items.filter(Q(title__icontains=search_str))
+        itemsCount = items.count()
+        return Response(itemsCount)
+        
+    def list(self, request):
+        data = request.data
+        search_str = data.get('searchStr')
+        loaded_count = int(data.get('loadedCount'))
+        limit = int(data.get('limit'))
+        tags = request.POST.getlist('tags[]')
+        queryset = Article.objects.all().order_by('-created_at')
+        queryset = queryset.filter(Q(title__icontains=search_str) | Q(description__icontains=search_str))
+        if tags != []:
+            queryset = queryset.filter(tags__in=(tags)).distinct()
+        items = queryset[loaded_count:loaded_count+limit]
+        serializer = CreateArticleSerializer(items, many=True)
+        return Response(serializer.data)
+
+class ArticleCommentView(viewsets.ViewSet):
+    def list(self, request, article_id, loadedItemsCount):
+        comments = ArticleComment.objects.filter(article__id=article_id)[loadedItemsCount:loadedItemsCount+30]
+        serializer = ArticleCommentSerializer(comments, many=True)
+        return Response(serializer.data)
+
+    def count(self, request, article_id):
+        items = ArticleComment.objects.all().filter(article__id=article_id)
+        count = items.count()
+        return Response(count)
+
+    def create(self, request):
+        data = request.data
+        _mutable = data._mutable
+        data._mutable = True
+        data['author'] = request.user.pk
+        data._mutable = _mutable
+        serializer = ArticleCommentCreateSerializer(data=data)
+        if not serializer.is_valid():
+            return Response(status=400, data=serializer.errors)
+        new_comment = serializer.save()
+        show_data_serializer = ArticleCommentSerializer(new_comment)
+        return Response(show_data_serializer.data)
+
+        
