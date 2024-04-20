@@ -302,16 +302,20 @@ class CustomizationView(viewsets.ViewSet):
         return Response(data)
 
     def edit_file_item(self, request):
-        file = request.data.get('file')
+        data = request.data
         queryset = Customization.objects.all()
-        item = request.data.get('item')
-        item, created = queryset.get_or_create(type=item)
-        item.file.delete(save=True)
-        if file != "null":
-            item.file = file
-            item.save()
-        serializer = FullCustomizationSerializer(item)
+        type = data.get('type')
+        item, created = queryset.get_or_create(type=type)
+        serializer = FullCustomizationSerializer(item, data=data)
+        if not serializer.is_valid():
+            return Response(status=400, data=serializer.errors)
+        file_deleting = data.get('file_deleting')
+        if file_deleting == "true":
+            item.file.delete(save=True)
+        new_item = serializer.save()
+        serializer = FullCustomizationSerializer(new_item)
         return Response(serializer.data['file'])
+        
 
     def edit_item(self, request):
         new_value = request.data.get('value')
@@ -363,6 +367,20 @@ class ArticleView(viewsets.ViewSet):
             return Response(status=400, data=serializer.errors)
         new_item = serializer.save(tags=tags)
         return Response({"data": serializer.data, 'item_id': new_item.id})
+    
+    def edit(self, request, id):
+        data = request.data
+        queryset = Article.objects.all()
+        item = get_object_or_404(queryset, pk=id)
+        serializer = CreateArticleSerializer(item, data=data)
+        tags = request.POST.getlist('tags[]')
+        if not serializer.is_valid():
+            return Response(status=400, data=serializer.errors)
+        cover_deleting = data.get('cover_deleting')
+        if cover_deleting == "true":
+            item.cover.delete(save=True)
+        new_item = serializer.save(tags=tags)
+        return Response({"data": serializer.data, 'item_id': new_item.id})
        
     def retrieve(self, request, id):
         queryset = Article.objects.all()
@@ -394,7 +412,7 @@ class ArticleView(viewsets.ViewSet):
 
 class ArticleCommentView(viewsets.ViewSet):
     def list(self, request, article_id, loadedItemsCount):
-        comments = ArticleComment.objects.filter(article__id=article_id)[loadedItemsCount:loadedItemsCount+30]
+        comments = ArticleComment.objects.filter(article__id=article_id).order_by('-created_at')[loadedItemsCount:loadedItemsCount+30]
         serializer = ArticleCommentSerializer(comments, many=True)
         return Response(serializer.data)
 
