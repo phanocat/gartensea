@@ -5,6 +5,7 @@ class Post(models.Model):
     text = models.CharField(max_length=1500, blank=True)
     created_at = models.DateTimeField(null=True)
     is_new_post = models.BooleanField(default=False)
+    col = models.IntegerField(default=1)
 
     def __str__(self):
         return self.text
@@ -19,7 +20,7 @@ class Comment(models.Model):
         return self.text
 
 class Image(models.Model):
-    file = models.ImageField(upload_to="post-images")
+    file = models.ImageField(upload_to="post-images", max_length=255)
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='images')
 
     def save(self, *args, **kwargs):

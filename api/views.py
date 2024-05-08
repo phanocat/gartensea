@@ -12,6 +12,9 @@ from .serializer import PostSerializer, ImageSerializer, PostSupplementsSerializ
     FullUserSerializer, UserRegistrationSerializer, UserProfileRegistrationSerializer,\
     FullCustomizationSerializer, ContentCustomizationSerializer, \
     UserListSerializer, TagSerializer, CreateArticleSerializer, FullArticleSerializer, ArticleCommentCreateSerializer, ArticleCommentSerializer
+from bs4 import BeautifulSoup
+from django.http import HttpResponse
+from selenium import webdriver
 
 class PostView(viewsets.ViewSet):
     def retrieve(self, request, post_id):
@@ -57,6 +60,10 @@ class PostView(viewsets.ViewSet):
         queryset = Post.objects.all()
         post = get_object_or_404(queryset, is_new_post=True)
         post.is_new_post = False
+        if post.id%2 != 0:
+            post.col = 1
+        else:
+            post.col = 2
         post.created_at = datetime.datetime.now()
         post.save()
         serializer = FullPostSerializer(post)
@@ -69,6 +76,16 @@ class PostView(viewsets.ViewSet):
         for image in images:
             image.file.delete(save=True)
         post.delete()
+        return Response(True)
+        
+    def edit_post_col(self, request, post_id):
+        post = get_object_or_404(Post.objects, id=post_id)
+        if post.col == 1:
+            newCol = 2
+        else:
+            newCol = 1
+        post.col = newCol
+        post.save()
         return Response(True)
 
 class CommentView(viewsets.ViewSet):
@@ -94,6 +111,12 @@ class CommentView(viewsets.ViewSet):
         new_comment = serializer.save()
         show_data_serializer = CommentSerializer(new_comment)
         return Response(show_data_serializer.data)
+        
+    def delete(self, request):
+        id = request.data.get('comment_id')
+        item = get_object_or_404(Comment.objects, id=id)
+        item.delete()
+        return Response(True)
 
 class ImageView(viewsets.ViewSet):
     def add_image(self, request):
@@ -293,11 +316,14 @@ class CustomizationView(viewsets.ViewSet):
         logo_serializer = FullCustomizationSerializer(logo)
         sitename, created = queryset.get_or_create(type='sitename')
         sitename_serializer = FullCustomizationSerializer(sitename)
+        menuColor, created = queryset.get_or_create(type='menuColor')
+        menuColor_serializer = FullCustomizationSerializer(menuColor)
         data = {
             'background': background_serializer.data['file'],
             'color': color_serializer.data['content'],
-             'logo': logo_serializer.data['file'],
+            'logo': logo_serializer.data['file'],
             'sitename': sitename_serializer.data['content'],
+            'menuColor': menuColor_serializer.data['content'],
         }
         return Response(data)
 
@@ -434,4 +460,11 @@ class ArticleCommentView(viewsets.ViewSet):
         show_data_serializer = ArticleCommentSerializer(new_comment)
         return Response(show_data_serializer.data)
 
+    def delete(self, request):
+        id = request.data.get('comment_id')
+        item = get_object_or_404(ArticleComment.objects, id=id)
+        item.delete()
+        return Response(True)
+        
+        
         

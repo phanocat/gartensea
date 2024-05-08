@@ -29,7 +29,7 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ['id', 'text', 'created_at', 'comments_count']
+        fields = ['id', 'text', 'created_at', 'comments_count', 'col']
 
 class PostTextSerializer(serializers.ModelSerializer):
     class Meta:
@@ -42,7 +42,7 @@ class FullPostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ['id', 'text', 'created_at', 'images', 'attachments']
+        fields = ['id', 'text', 'created_at', 'images', 'attachments', 'col']
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:

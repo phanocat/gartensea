@@ -12,6 +12,7 @@ urlpatterns = [
     path('set-new-post-text/<int:post_id>', PostView.as_view({'post': 'set_text'})),
     path('add-new-post', PostView.as_view({'post': 'create'})),
     path('delete-post', PostView.as_view({'post': 'delete'})),
+    path('change-post-col/<int:post_id>', PostView.as_view({'post': 'edit_post_col'})),
     #image
     path('add-image', ImageView.as_view({'post': 'add_image'})),
     path('delete-image', ImageView.as_view({'post': 'delete'})),
@@ -22,6 +23,7 @@ urlpatterns = [
     path('comments/<int:post_id>/<int:loadedItemsCount>', CommentView.as_view({'get': 'list'})),
     path('add-comment', CommentView.as_view({'post': 'create'})),
     path('comments-count/<int:post_id>', CommentView.as_view({'get': 'count'})),
+    path('delete-comment', CommentView.as_view({'post': 'delete'})),
     #user
     path('users-count', UserView.as_view({'get': 'count'})),
     path('login-or-registration', UserView.as_view({'post': 'login_or_registration'})),
@@ -65,4 +67,6 @@ urlpatterns = [
     path('article-comments/<int:article_id>/<int:loadedItemsCount>', ArticleCommentView.as_view({'get': 'list'})),
     path('article-comments-count/<int:article_id>', ArticleCommentView.as_view({'get': 'count'})),
     path('add-article-comment', ArticleCommentView.as_view({'post': 'create'})),
+    path('delete-article-comment', ArticleCommentView.as_view({'post': 'delete'})),
+    
 ]
