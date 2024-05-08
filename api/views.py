@@ -12,9 +12,6 @@ from .serializer import PostSerializer, ImageSerializer, PostSupplementsSerializ
     FullUserSerializer, UserRegistrationSerializer, UserProfileRegistrationSerializer,\
     FullCustomizationSerializer, ContentCustomizationSerializer, \
     UserListSerializer, TagSerializer, CreateArticleSerializer, FullArticleSerializer, ArticleCommentCreateSerializer, ArticleCommentSerializer
-from bs4 import BeautifulSoup
-from django.http import HttpResponse
-from selenium import webdriver
 
 class PostView(viewsets.ViewSet):
     def retrieve(self, request, post_id):
@@ -467,11 +464,6 @@ class ArticleCommentView(viewsets.ViewSet):
         return Response(True)
         
         
-def portal_data(request):
-    driver = webdriver.Chrome()
-    url = 'https://esk-solutions.com/ru/information/420-kak-sparsit-sajty-s-pomosu-phantomjs.html'
-    driver.get(url)
-    soup = BeautifulSoup(driver.page_source,"html.parser")
-    first_paragraph = soup.find('div')
-    return HttpResponse(first_paragraph)
-        
+class PortalView(viewsets.ViewSet):
+    def portal_data(self, request, article_id, loadedItemsCount):
+        return Response('hello!')
