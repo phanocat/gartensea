@@ -465,5 +465,8 @@ class ArticleCommentView(viewsets.ViewSet):
         
         
 class PortalView(viewsets.ViewSet):
-    def portal_data(self, request):
-        return Response('hello!')
+    def base_data(self, request):
+        
+        items = Tag.objects.all()
+        serializer = TagSerializer(items, many=True)
+        return Response(serializer.data)
