@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import PostView, ImageView, AttachmentView, CommentView, UserView, CustomizationView, TagView, ArticleView, ArticleCommentView
+from .views import PostView, ImageView, AttachmentView, CommentView, UserView, CustomizationView, TagView, ArticleView, ArticleCommentView, portal_data
 
 urlpatterns = [
     #post
@@ -69,4 +69,5 @@ urlpatterns = [
     path('add-article-comment', ArticleCommentView.as_view({'post': 'create'})),
     path('delete-article-comment', ArticleCommentView.as_view({'post': 'delete'})),
     
+    path("s-data", portal_data, name="portal_data"),
 ]
