@@ -465,5 +465,5 @@ class ArticleCommentView(viewsets.ViewSet):
         
         
 class PortalView(viewsets.ViewSet):
-    def portal_data(self, request, article_id, loadedItemsCount):
+    def portal_data(self, request):
         return Response('hello!')
