@@ -12,6 +12,8 @@ from .serializer import PostSerializer, ImageSerializer, PostSupplementsSerializ
     FullUserSerializer, UserRegistrationSerializer, UserProfileRegistrationSerializer,\
     FullCustomizationSerializer, ContentCustomizationSerializer, \
     UserListSerializer, TagSerializer, CreateArticleSerializer, FullArticleSerializer, ArticleCommentCreateSerializer, ArticleCommentSerializer
+import requests
+from bs4 import BeautifulSoup
 
 class PostView(viewsets.ViewSet):
     def retrieve(self, request, post_id):
@@ -466,7 +468,12 @@ class ArticleCommentView(viewsets.ViewSet):
         
 class PortalView(viewsets.ViewSet):
     def base_data(self, request):
-        
-        items = Tag.objects.all()
-        serializer = TagSerializer(items, many=True)
-        return Response(serializer.data)
+        url = 'https://open-notebooks.ru'
+        req = requests.get(url)
+        web_s = req.text
+        soup = BeautifulSoup(web_s, "html.parser")
+        title = soup.title.string
+        description = soup.find('meta', {'name':'description'}).get('content')
+        logo = soup.find('meta', {'name':'image'}).get('content')
+        last_post_id = soup.find(id="last_post_id")
+        return Response({"title": title, "description": description, "logo": logo, "last_post_id": last_post_id})
