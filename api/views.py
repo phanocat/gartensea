@@ -468,7 +468,7 @@ class ArticleCommentView(viewsets.ViewSet):
         
 class PortalView(viewsets.ViewSet):
     def base_data(self, request):
-        url = 'https://open-notebooks.ru'
+        url = 'https://open-notebooks.ru/portal-info'
         req = requests.get(url)
         web_s = req.text
         soup = BeautifulSoup(web_s, "html.parser")
