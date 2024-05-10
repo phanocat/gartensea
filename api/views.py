@@ -465,15 +465,13 @@ class ArticleCommentView(viewsets.ViewSet):
         item.delete()
         return Response(True)
         
-        
 class PortalView(viewsets.ViewSet):
     def base_data(self, request):
-        url = 'https://open-notebooks.ru/portal-info'
-        req = requests.get(url)
-        web_s = req.text
-        soup = BeautifulSoup(web_s, "html.parser")
+        url = 'http://open-notebooks.ru/portal-info'
+        page = requests.get(url)
+        soup = BeautifulSoup(page.text, "html.parser")
         title = soup.title.string
         description = soup.find('meta', {'name':'description'}).get('content')
         logo = soup.find('meta', {'name':'image'}).get('content')
-        last_post_id = soup.find(id="last_post_id")
+        last_post_id = soup.findAll('span', class_='last-post-id')
         return Response({"title": title, "description": description, "logo": logo, "last_post_id": last_post_id})
