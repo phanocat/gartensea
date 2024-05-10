@@ -473,5 +473,5 @@ class PortalView(viewsets.ViewSet):
         title = soup.title.string
         description = soup.find('meta', {'name':'description'}).get('content')
         logo = soup.find('meta', {'name':'image'}).get('content')
-        last_post_id = soup.findAll('span', class_='last-post-id')
+        last_post_id = soup.findAll('span', class_='last-post-id').get_text()
         return Response({"title": title, "description": description, "logo": logo, "last_post_id": last_post_id})
