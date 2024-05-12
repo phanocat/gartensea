@@ -18,6 +18,7 @@ class InfoView(TemplateView):
     
     def get_context_data(self, * args, ** kwargs):
         context = super().get_context_data( * args, ** kwargs)
+        queryset = Customization.objects.all()
         sitename, created = queryset.get_or_create(type='sitename')
         context['title'] = sitename.content
         logo, created = queryset.get_or_create(type='logo')

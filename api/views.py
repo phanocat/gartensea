@@ -501,7 +501,7 @@ class PortalView(viewsets.ViewSet):
         data_url = url + '/portal-info'
         page = requests.get(data_url)
         soup = BeautifulSoup(page.text, "html.parser")
-        page_status = soup.description
+        page_status = soup.description.string
         if page_status == 'Gartensea page':
             title = soup.title.string
             logo = soup.find('meta', {'name':'image'}).get('content')
