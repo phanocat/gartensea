@@ -482,8 +482,8 @@ class PortalView(viewsets.ViewSet):
             logo = soup.find('meta', {'name':'image'}).get('content')
             if logo == "/media/": 
                 logo = ""
-            last_post_id = str(soup.find('span', id='last_post_id').getText())
-            last_article_id = str(soup.find('span', id='last_article_id').getText())    
+            last_post_id = str(soup.find('div', id='last_post_id').getText())
+            last_article_id = str(soup.find('div', id='last_article_id').getText())    
             if str(item.last_article_id) != last_article_id or str(item.last_post_id) != last_post_id:
                 is_news = 'true'
             else:
