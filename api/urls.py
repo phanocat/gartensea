@@ -69,5 +69,7 @@ urlpatterns = [
     path('add-article-comment', ArticleCommentView.as_view({'post': 'create'})),
     path('delete-article-comment', ArticleCommentView.as_view({'post': 'delete'})),
     #связь с другими ресурсами
-    path('get-profile', PortalView.as_view({'get': 'base_data'})),
+    path('get-subscribes', PortalView.as_view({'get': 'base_data'})),
+    path('add-subscribe', PortalView.as_view({'post': 'create'})),
+    path('unsubscribe', PortalView.as_view({'post': 'delete'})),
 ]

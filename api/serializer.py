@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Post, Image, Attachment, Comment, Customization, Tag, Article, ArticleComment
+from .models import Post, Image, Attachment, Comment, Customization, Tag, Article, ArticleComment, Subscribe
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
@@ -29,7 +29,7 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ['id', 'text', 'created_at', 'comments_count', 'col']
+        fields = ['id', 'col', 'text', 'created_at', 'comments_count']
 
 class PostTextSerializer(serializers.ModelSerializer):
     class Meta:
@@ -42,7 +42,7 @@ class FullPostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ['id', 'text', 'created_at', 'images', 'attachments', 'col']
+        fields = ['id', 'col', 'text', 'created_at', 'images', 'attachments']
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -142,4 +142,9 @@ class ArticleCommentCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = ArticleComment
         fields = ['id', 'text', 'author', 'created_at', 'article']
+        
+class SubscribeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subscribe
+        fields = ['id', 'url', 'last_article_id', 'last_post_id']
         

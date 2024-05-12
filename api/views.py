@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 import datetime
 from django.contrib.auth import authenticate, login, logout
-from .models import Post, Image, Attachment, Comment, Customization, Tag, Article, ArticleComment
+from .models import Post, Image, Attachment, Comment, Customization, Tag, Article, ArticleComment, Subscribe
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
@@ -11,7 +11,8 @@ from .serializer import PostSerializer, ImageSerializer, PostSupplementsSerializ
     PostTextSerializer, AttachmentSerializer, CommentSerializer, CommentCreateSerializer, \
     FullUserSerializer, UserRegistrationSerializer, UserProfileRegistrationSerializer,\
     FullCustomizationSerializer, ContentCustomizationSerializer, \
-    UserListSerializer, TagSerializer, CreateArticleSerializer, FullArticleSerializer, ArticleCommentCreateSerializer, ArticleCommentSerializer
+    UserListSerializer, TagSerializer, CreateArticleSerializer, FullArticleSerializer, ArticleCommentCreateSerializer, ArticleCommentSerializer, \
+    SubscribeSerializer
 import requests
 from bs4 import BeautifulSoup
 
@@ -298,7 +299,10 @@ class CustomizationView(viewsets.ViewSet):
 
     def privacy_settings_data(self, request):
         try:
-            item = Customization.objects.all().get(type='needToEnter')
+            item, create = Customization.objects.all().get_or_create(type='needToEnter')
+            if item.content == '':
+                item.content = 'false'
+                item.save()
         except (ObjectDoesNotExist, MultipleObjectsReturned):
             item = Customization.objects.filter(type='needToEnter').order_by('id').first()
             Customization.objects.all().filter(type='needToEnter').exclude(pk=item.pk).delete()
@@ -467,11 +471,60 @@ class ArticleCommentView(viewsets.ViewSet):
         
 class PortalView(viewsets.ViewSet):
     def base_data(self, request):
-        url = 'http://open-notebooks.ru/portal-info'
-        page = requests.get(url)
+        items = Subscribe.objects.all().order_by('-id')
+        subscribes = []
+        for item in items:
+            url = 'http://' + item.url
+            data_url = url + '/portal-info'
+            page = requests.get(data_url)
+            soup = BeautifulSoup(page.text, "html.parser")
+            title = soup.title.string
+            logo = soup.find('meta', {'name':'image'}).get('content')
+            if logo == "/media/": 
+                logo = ""
+            last_post_id = str(soup.find('span', id='last_post_id').getText())
+            last_article_id = str(soup.find('span', id='last_article_id').getText())    
+            if str(item.last_article_id) != last_article_id or str(item.last_post_id) != last_post_id:
+                is_news = 'true'
+            else:
+                is_news = 'false'
+            new_item = {"id": item.id, "url": url, "title": title, "logo": logo, "is_news": is_news}
+            subscribes.append(new_item)
+            item.last_post_id = last_post_id
+            item.last_article_id = last_article_id
+            item.save()
+        return Response(subscribes)
+        
+    def create(self, request):
+        data = request.data
+        url = 'http://' + data.get('url')
+        data_url = url + '/portal-info'
+        page = requests.get(data_url)
         soup = BeautifulSoup(page.text, "html.parser")
-        title = soup.title.string
-        description = soup.find('meta', {'name':'description'}).get('content')
-        logo = soup.find('meta', {'name':'image'}).get('content')
-        last_post_id = soup.findAll('span', class_='last-post-id').get_text()
-        return Response({"title": title, "description": description, "logo": logo, "last_post_id": last_post_id})
+        page_status = soup.description
+        if page_status == 'Gartensea page':
+            title = soup.title.string
+            logo = soup.find('meta', {'name':'image'}).get('content')
+            if logo == "/media/": 
+                logo = ""
+            last_post_id = str(soup.find('div', id='last_post_id').getText())
+            last_article_id = str(soup.find('div', id='last_article_id').getText())    
+            _mutable = data._mutable
+            data._mutable = True
+            data['last_article_id'] = last_post_id
+            data['last_post_id'] = last_article_id
+            data._mutable = _mutable
+            serializer = SubscribeSerializer(data=data)
+            if not serializer.is_valid():
+                return Response(status=400, data=serializer.errors)
+            item = serializer.save()
+            new_item = {"id": item.id, "url": url, "title": title, "logo": logo, "is_news": 'false'}
+            return Response(new_item)
+        else:
+            return Response(404)
+        
+    def delete(self, request):
+        id = request.data.get('id')
+        item = get_object_or_404(Subscribe.objects, id=id)
+        item.delete()
+        return Response(True)

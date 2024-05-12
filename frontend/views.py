@@ -6,8 +6,11 @@ class IndexView(TemplateView):
     
     def get_context_data(self, * args, ** kwargs):
         context = super().get_context_data( * args, ** kwargs)
-        context['title'] = Customization.objects.all().get(type='sitename').content
-        context['logo'] = Customization.objects.all().get(type='logo').file
+        queryset = Customization.objects.all()
+        sitename, created = queryset.get_or_create(type='sitename')
+        context['title'] = sitename.content
+        logo, created = queryset.get_or_create(type='logo')
+        context['logo'] = logo.file
         return context
 
 class InfoView(TemplateView):
@@ -15,8 +18,10 @@ class InfoView(TemplateView):
     
     def get_context_data(self, * args, ** kwargs):
         context = super().get_context_data( * args, ** kwargs)
-        context['title'] = Customization.objects.all().get(type='sitename').content
-        context['logo'] = Customization.objects.all().get(type='logo').file
+        sitename, created = queryset.get_or_create(type='sitename')
+        context['title'] = sitename.content
+        logo, created = queryset.get_or_create(type='logo')
+        context['logo'] = logo.file
         context['last_post_id'] = Post.objects.latest('id').id
         context['last_article_id'] = Article.objects.latest('id').id
         return context

@@ -66,6 +66,14 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.name
+        
+class Subscribe(models.Model):
+    url = models.CharField(max_length=120)
+    last_post_id = models.IntegerField(blank=True)
+    last_article_id = models.IntegerField(blank=True)
+
+    def __str__(self):
+        return self.url
 
 class Article(models.Model):
     title = models.CharField(max_length=120)
