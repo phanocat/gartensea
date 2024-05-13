@@ -8,7 +8,11 @@ class IndexView(TemplateView):
         context = super().get_context_data( * args, ** kwargs)
         queryset = Customization.objects.all()
         sitename, created = queryset.get_or_create(type='sitename')
-        context['title'] = sitename.content
+        if sitename.content == '':
+            title = 'Gartensea'
+        else:
+            title = sitename.content
+        context['title'] = title
         logo, created = queryset.get_or_create(type='logo')
         context['logo'] = logo.file
         return context
