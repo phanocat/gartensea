@@ -438,6 +438,13 @@ class ArticleView(viewsets.ViewSet):
         items = queryset[loaded_count:loaded_count+limit]
         serializer = CreateArticleSerializer(items, many=True)
         return Response(serializer.data)
+        
+    def delete(self, request):
+        id = request.data.get('id')
+        item = get_object_or_404(Article.objects, id=id)
+        item.cover.delete(save=True)
+        item.delete()
+        return Response(True)
 
 class ArticleCommentView(viewsets.ViewSet):
     def list(self, request, article_id, loadedItemsCount):

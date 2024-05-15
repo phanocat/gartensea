@@ -63,6 +63,7 @@ urlpatterns = [
     path('get-articles', ArticleView.as_view({'post': 'list'})),
     path('articles-count', ArticleView.as_view({'post': 'count'})),
     path('edit-article/<int:id>', ArticleView.as_view({'post': 'edit'})),
+    path('delete-article', ArticleView.as_view({'post': 'delete'})),
     #комментарии статей
     path('article-comments/<int:article_id>/<int:loadedItemsCount>', ArticleCommentView.as_view({'get': 'list'})),
     path('article-comments-count/<int:article_id>', ArticleCommentView.as_view({'get': 'count'})),
