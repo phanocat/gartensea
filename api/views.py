@@ -299,14 +299,23 @@ class CustomizationView(viewsets.ViewSet):
 
     def privacy_settings_data(self, request):
         try:
-            item, create = Customization.objects.all().get_or_create(type='needToEnter')
-            if item.content == '':
-                item.content = 'false'
-                item.save()
+            needToEnter, create = Customization.objects.all().get_or_create(type='needToEnter')
+            if needToEnter.content == '':
+                needToEnter.content = 'false'
+                needToEnter.save()
         except (ObjectDoesNotExist, MultipleObjectsReturned):
-            item = Customization.objects.filter(type='needToEnter').order_by('id').first()
-            Customization.objects.all().filter(type='needToEnter').exclude(pk=item.pk).delete()
-        serializer = ContentCustomizationSerializer(item)
+            needToEnter = Customization.objects.filter(type='needToEnter').order_by('id').first()
+            Customization.objects.all().filter(type='needToEnter').exclude(pk=needToEnter.pk).delete()
+        serializer = ContentCustomizationSerializer(needToEnter)
+        return Response(serializer.data['content'])
+        
+    def rules_settings_data(self, request):
+        try:
+            rules, create = Customization.objects.all().get_or_create(type='rules')
+        except (ObjectDoesNotExist, MultipleObjectsReturned):
+            rules = Customization.objects.filter(type='rules').order_by('id').first()
+            Customization.objects.all().filter(type='rules').exclude(pk=rules.pk).delete()
+        serializer = ContentCustomizationSerializer(rules)
         return Response(serializer.data['content'])
 
     def styles(self, request):
@@ -321,12 +330,31 @@ class CustomizationView(viewsets.ViewSet):
         sitename_serializer = FullCustomizationSerializer(sitename)
         menuColor, created = queryset.get_or_create(type='menuColor')
         menuColor_serializer = FullCustomizationSerializer(menuColor)
+        menuTextColor, created = queryset.get_or_create(type='menuTextColor')
+        menuTextColor_serializer = FullCustomizationSerializer(menuTextColor)
+        gradientCover, created = queryset.get_or_create(type='gradientCover')
+        gradientCover_serializer = FullCustomizationSerializer(gradientCover)
+        MC, created = queryset.get_or_create(type='MC')
+        MC_serializer = FullCustomizationSerializer(MC)
+        DAC, created = queryset.get_or_create(type='DAC')
+        DAC_serializer = FullCustomizationSerializer(DAC)
+        EAC, created = queryset.get_or_create(type='EAC')
+        EAC_serializer = FullCustomizationSerializer(EAC)
+        EC, created = queryset.get_or_create(type='EC')
+        EC_serializer = FullCustomizationSerializer(EC)
+        
         data = {
             'background': background_serializer.data['file'],
             'color': color_serializer.data['content'],
             'logo': logo_serializer.data['file'],
             'sitename': sitename_serializer.data['content'],
             'menuColor': menuColor_serializer.data['content'],
+            'menuTextColor': menuTextColor_serializer.data['content'],
+            'gradientCover': gradientCover_serializer.data['content'],
+            'MC': MC_serializer.data['content'],
+            'DAC': DAC_serializer.data['content'],
+            'EAC': EAC_serializer.data['content'],
+            'EC': EC_serializer.data['content'],
         }
         return Response(data)
 

@@ -42,6 +42,7 @@ urlpatterns = [
     path('profile-about', CustomizationView.as_view({'get': 'profile_about'})),
     path('profile-contacts', CustomizationView.as_view({'get': 'profile_contacts'})),
     path('privacy-settings-data', CustomizationView.as_view({'get': 'privacy_settings_data'})),
+    path('rules-settings-data', CustomizationView.as_view({'get': 'rules_settings_data'})),
     path('styles', CustomizationView.as_view({'get': 'styles'})),
     path('edit-item', CustomizationView.as_view({'post': 'edit_item'})),
     path('edit-file-item', CustomizationView.as_view({'post': 'edit_file_item'})),

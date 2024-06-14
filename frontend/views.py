@@ -1,5 +1,7 @@
 from django.views.generic import TemplateView
-from api.models import Customization, Post, Article
+from api.models import Customization, Post, Article, Image
+from django.shortcuts import render, get_object_or_404, redirect
+from bs4 import BeautifulSoup
 
 class IndexView(TemplateView):
     template_name = 'frontend/index.html'
@@ -30,3 +32,26 @@ class InfoView(TemplateView):
         context['last_post_id'] = Post.objects.latest('id').id
         context['last_article_id'] = Article.objects.latest('id').id
         return context
+        
+def post_item(request, id):
+    post = get_object_or_404(Post, id=id)
+    text = post.text
+    text = text[:180] + '...' if len(text) > 180 else text
+    cleantext = BeautifulSoup(text, "html.parser").text
+    if Image.objects.filter(post=post).exists():
+        cover = Image.objects.filter(post=post).latest('id').file
+    else:
+        logo, created = Customization.objects.all().get_or_create(type='logo')
+        cover = logo.file
+    sitename, created = Customization.objects.all().get_or_create(type='sitename')
+    if sitename.content == '':
+        sitename = 'Гортензия'
+    else:
+        sitename = sitename.content
+    context = {
+        'id': id,
+        'sitename': sitename,
+        'text': cleantext,
+        'cover': cover,
+    }
+    return render(request, 'frontend/item.html', context=context)
