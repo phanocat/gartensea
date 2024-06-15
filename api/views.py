@@ -317,6 +317,18 @@ class CustomizationView(viewsets.ViewSet):
             Customization.objects.all().filter(type='rules').exclude(pk=rules.pk).delete()
         serializer = ContentCustomizationSerializer(rules)
         return Response(serializer.data['content'])
+        
+    def sibscribe_permission_settings_data(self, request):
+        try:
+            permission, create = Customization.objects.all().get_or_create(type='subscribePermission')
+            if permission.content == '':
+                permission.content = 'true'
+                permission.save()
+        except (ObjectDoesNotExist, MultipleObjectsReturned):
+            permission = Customization.objects.filter(type='subscribePermission').order_by('id').first()
+            Customization.objects.all().filter(type='subscribePermission').exclude(pk=permission.pk).delete()
+        serializer = ContentCustomizationSerializer(permission)
+        return Response(serializer.data['content'])
 
     def styles(self, request):
         queryset = Customization.objects.all()
@@ -539,22 +551,25 @@ class PortalView(viewsets.ViewSet):
         page_status = soup.find('meta', {'name':'description'}).get('content')
         if page_status == 'Gartensea page':
             title = soup.title.string
-            logo = soup.find('meta', {'name':'image'}).get('content')
-            if logo == "/media/": 
-                logo = ""
-            last_post_id = str(soup.find('div', id='last_post_id').getText())
-            last_article_id = str(soup.find('div', id='last_article_id').getText())    
-            _mutable = data._mutable
-            data._mutable = True
-            data['last_article_id'] = last_post_id
-            data['last_post_id'] = last_article_id
-            data._mutable = _mutable
-            serializer = SubscribeSerializer(data=data)
-            if not serializer.is_valid():
-                return Response(status=400, data=serializer.errors)
-            item = serializer.save()
-            new_item = {"id": item.id, "url": url, "title": title, "logo": logo, "is_news": 'false'}
-            return Response(new_item)
+            if title != 'Closed Gartensea Page':
+                logo = soup.find('meta', {'name':'image'}).get('content')
+                if logo == "/media/": 
+                    logo = ""
+                last_post_id = str(soup.find('div', id='last_post_id').getText())
+                last_article_id = str(soup.find('div', id='last_article_id').getText())    
+                _mutable = data._mutable
+                data._mutable = True
+                data['last_article_id'] = last_post_id
+                data['last_post_id'] = last_article_id
+                data._mutable = _mutable
+                serializer = SubscribeSerializer(data=data)
+                if not serializer.is_valid():
+                    return Response(status=400, data=serializer.errors)
+                item = serializer.save()
+                new_item = {"id": item.id, "url": url, "title": title, "logo": logo, "is_news": 'false'}
+                return Response(new_item)
+            else:
+                return Response(500)
         else:
             return Response(404)
         
