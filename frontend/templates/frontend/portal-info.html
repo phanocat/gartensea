@@ -14,8 +14,10 @@
 </head>
 <body>
 <div id="app">
-	<div id="last_article_id">{{ last_article_id }}</div>
-	<div id="last_post_id">{{ last_post_id }}</div>
+	{% if title != 'Closed Gartensea Page' %}
+		<div id="last_article_id">{{ last_article_id }}</div>
+		<div id="last_post_id">{{ last_post_id }}</div>
+	{% endif %}
 </div>
 </body>
 </html>
