@@ -61,5 +61,30 @@ def post_item(request, id):
         'sitename': sitename,
         'text': cleantext,
         'cover': cover,
+        'type': 'post'
+    }
+    return render(request, 'frontend/item.html', context=context)
+      
+def article_item(request, id):
+    article = get_object_or_404(Article, id=id)
+    text = article.text
+    text = text[:180] + '...' if len(text) > 180 else text
+    cleantext = BeautifulSoup(text, "html.parser").text
+    if article.cover:
+        cover = article.cover
+    else:
+        logo, created = Customization.objects.all().get_or_create(type='logo')
+        cover = logo.file
+    sitename, created = Customization.objects.all().get_or_create(type='sitename')
+    if sitename.content == '':
+        sitename = 'Гортензия'
+    else:
+        sitename = sitename.content
+    context = {
+        'id': id,
+        'sitename': sitename,
+        'text': cleantext,
+        'cover': cover,
+        'type': 'article'
     }
     return render(request, 'frontend/item.html', context=context)
