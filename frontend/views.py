@@ -29,7 +29,7 @@ class InfoView(TemplateView):
         if permission.content == '':
             permission.content = 'true'
             permission.save()
-        if permission == 'true':
+        if permission.content == 'true':
             sitename, created = queryset.get_or_create(type='sitename')
             context['title'] = sitename.content
             logo, created = queryset.get_or_create(type='logo')

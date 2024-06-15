@@ -569,7 +569,7 @@ class PortalView(viewsets.ViewSet):
                 new_item = {"id": item.id, "url": url, "title": title, "logo": logo, "is_news": 'false'}
                 return Response(new_item)
             else:
-                return Response(500)
+                return Response(403)
         else:
             return Response(404)
         
