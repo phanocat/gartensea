@@ -521,25 +521,28 @@ class PortalView(viewsets.ViewSet):
         items = Subscribe.objects.all().order_by('-id')
         subscribes = []
         for item in items:
-            url = 'http://' + item.url
-            data_url = url + '/portal-info'
-            page = requests.get(data_url)
-            soup = BeautifulSoup(page.text, "html.parser")
             title = soup.title.string
-            logo = soup.find('meta', {'name':'image'}).get('content')
-            if logo == "/media/": 
-                logo = ""
-            last_post_id = str(soup.find('div', id='last_post_id').getText())
-            last_article_id = str(soup.find('div', id='last_article_id').getText())    
-            if str(item.last_article_id) != last_article_id or str(item.last_post_id) != last_post_id:
-                is_news = 'true'
+            if title != 'Closed Gartensea Page':
+                url = 'http://' + item.url
+                data_url = url + '/portal-info'
+                page = requests.get(data_url)
+                soup = BeautifulSoup(page.text, "html.parser")
+                logo = soup.find('meta', {'name':'image'}).get('content')
+                if logo == "/media/": 
+                    logo = ""
+                last_post_id = str(soup.find('div', id='last_post_id').getText())
+                last_article_id = str(soup.find('div', id='last_article_id').getText())    
+                if str(item.last_article_id) != last_article_id or str(item.last_post_id) != last_post_id:
+                    is_news = 'true'
+                else:
+                    is_news = 'false'
+                new_item = {"id": item.id, "url": url, "title": title, "logo": logo, "is_news": is_news}
+                subscribes.append(new_item)
+                item.last_post_id = last_post_id
+                item.last_article_id = last_article_id
+                item.save()
             else:
-                is_news = 'false'
-            new_item = {"id": item.id, "url": url, "title": title, "logo": logo, "is_news": is_news}
-            subscribes.append(new_item)
-            item.last_post_id = last_post_id
-            item.last_article_id = last_article_id
-            item.save()
+                item = 403
         return Response(subscribes)
         
     def create(self, request):
