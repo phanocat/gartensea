@@ -521,12 +521,12 @@ class PortalView(viewsets.ViewSet):
         items = Subscribe.objects.all().order_by('-id')
         subscribes = []
         for item in items:
+            url = 'http://' + item.url
+            data_url = url + '/portal-info'
+            page = requests.get(data_url)
+            soup = BeautifulSoup(page.text, "html.parser")
             title = soup.title.string
             if title != 'Closed Gartensea Page':
-                url = 'http://' + item.url
-                data_url = url + '/portal-info'
-                page = requests.get(data_url)
-                soup = BeautifulSoup(page.text, "html.parser")
                 logo = soup.find('meta', {'name':'image'}).get('content')
                 if logo == "/media/": 
                     logo = ""
