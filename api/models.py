@@ -52,7 +52,7 @@ class Attachment(models.Model):
 
 class Customization(models.Model):
     type = models.CharField(max_length=28)
-    content = models.CharField(max_length=210, blank=True)
+    content = models.CharField(max_length=250, blank=True)
     file = models.ImageField(upload_to="site-illustrations", blank=True)
 
     def __str__(self):
