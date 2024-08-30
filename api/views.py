@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 import datetime
 from django.contrib.auth import authenticate, login, logout
-from .models import Post, Image, Attachment, Comment, Customization, Tag, Article, ArticleComment, Subscribe
+from .models import Post, Image, Attachment, Comment, Customization, Tag, Article, ArticleComment, Subscribe, Smile
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
@@ -12,7 +12,7 @@ from .serializer import PostSerializer, ImageSerializer, PostSupplementsSerializ
     FullUserSerializer, UserRegistrationSerializer, UserProfileRegistrationSerializer,\
     FullCustomizationSerializer, ContentCustomizationSerializer, \
     UserListSerializer, TagSerializer, CreateArticleSerializer, FullArticleSerializer, ArticleCommentCreateSerializer, ArticleCommentSerializer, \
-    SubscribeSerializer
+    SubscribeSerializer, SmileSerializer
 import requests
 from bs4 import BeautifulSoup
 
@@ -395,6 +395,27 @@ class CustomizationView(viewsets.ViewSet):
         item.save()
         serializer = FullCustomizationSerializer(item)
         return Response(serializer.data['content'])
+        
+class SmileView(viewsets.ViewSet):
+    def add_smile(self, request):
+        data = request.data
+        serializer = SmileSerializer(data=data)
+        if not serializer.is_valid():
+            return Response(status=400, data=serializer.errors)
+        serializer.save()
+        return Response(serializer.data)
+        
+    def list(self, request):
+        data = request.data
+        queryset = Smile.objects.all()
+        serializer = SmileSerializer(queryset, many=True)
+        return Response(serializer.data)
+        
+    def delete(self, request):
+        id = request.data.get('smile_id')
+        item = get_object_or_404(Smile.objects, id=id)
+        item.delete()
+        return Response(True)
         
 class TagView(viewsets.ViewSet):
     def create(self, request):

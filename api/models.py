@@ -97,3 +97,7 @@ class ArticleComment(models.Model):
 
     def __str__(self):
         return self.text
+       
+class Smile(models.Model):
+    file = models.ImageField(upload_to='smiles/')
+

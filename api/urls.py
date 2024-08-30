@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import PostView, ImageView, AttachmentView, CommentView, UserView, CustomizationView, TagView, ArticleView, ArticleCommentView, PortalView
+from .views import PostView, ImageView, AttachmentView, CommentView, UserView, CustomizationView, TagView, ArticleView, ArticleCommentView, PortalView, SmileView
 
 urlpatterns = [
     #post
@@ -48,6 +48,9 @@ urlpatterns = [
     path('edit-item', CustomizationView.as_view({'post': 'edit_item'})),
     path('edit-file-item', CustomizationView.as_view({'post': 'edit_file_item'})),
     path('get-need-to-enter-value', CustomizationView.as_view({'get': 'privacy_settings_data'})),
+    path('add-smile', SmileView.as_view({'post': 'add_smile'})),
+    path('get-smiles', SmileView.as_view({'get': 'list'})),
+    path('delete-smile', SmileView.as_view({'post': 'delete'})),
     #настройки для данных профиля
     path('edit-name', CustomizationView.as_view({'post': 'edit_name'})),
     path('edit-avatar', CustomizationView.as_view({'post': 'edit_avatar'})),

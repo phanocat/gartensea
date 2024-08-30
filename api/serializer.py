@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Post, Image, Attachment, Comment, Customization, Tag, Article, ArticleComment, Subscribe
+from .models import Post, Image, Attachment, Comment, Customization, Tag, Article, ArticleComment, Subscribe, Smile
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
@@ -147,4 +147,9 @@ class SubscribeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subscribe
         fields = ['id', 'url', 'last_article_id', 'last_post_id']
+        
+class SmileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Smile
+        fields = ['id', 'file']
         
