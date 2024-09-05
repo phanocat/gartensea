@@ -78,7 +78,7 @@ class Subscribe(models.Model):
 class Article(models.Model):
     title = models.CharField(max_length=120)
     description = models.CharField(max_length=300, blank=True)
-    text = models.CharField(max_length=20000)
+    text = models.CharField(max_length=25000)
     created_at = models.DateTimeField(auto_now_add=True)
     cover = models.ImageField(upload_to="article-images", blank=True)
     tags = models.ManyToManyField(Tag, blank='True')
